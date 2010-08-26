@@ -1,85 +1,11 @@
+#!/usr/local/bin/python
 
-import serial
-import math
-import tweetstream
-import time
-import json
+# Pledgie
+
 import urllib2
+import json
+import sign
 import locale
-from pprint import pprint
-
-styles = {
-	"instant" : "<FB>",
-	"scroll_bottom" : "<FC>",
-	"in_place_right" : "<FD>",
-	"from_center_h" : "<FE>",
-	"from_center_v" : "<FF>",
-	"scroll_always" : "<FH>",
-	"invisible" : "<FM>",	
-	"scroll_stuck" : "<FM>",
-	"center" : "<FB>",
-	"scroll_always" : "<FH>",	
-	""	: "",
-}
-
-def rst(id):
-  s = "\x0D\x0A"
-  s += "<ID"
-  if id<10:
-    s += "0"
-  s += ">"
-  #print str
-  
-def oneline(id, txt):
-  s = "\x0D\x0A"
-  s += "<ID"
-  if id<10:
-    s += "0"
-  s += str(id)
-  s += ">"
-  s += "<PA>"
-  s += txt
-  s += "\x0D\x0A"
-  signfile.write(s)
-  #print s
-  
-  
-def tosign(id, topStyle, u, bottomStyle, b):
-  s = "\x0D\x0A"
-  s += "<ID"
-  if id<10:
-    s += "0"
-  s += str(id)
-  s += ">"
-  s += "<PZ>"
-  s += "<L1>"
-#  s += styles.get(topStyle)
-  s += u
-  s += "<L2>"
-#  s += styles.get(bottomStyle)
-  s += b
-  s += "\x0D\x0A"
-  signfile.write(s)
-  s += "<ID"
-  if id<10:
-    s += "0"
-  s += str(id)
-  s += ">"
-  s += "<RPZ>"
-  s += "\x0D\x0A"
-  signfile.write(s)
-  #print s
-
-def formSign(sign, tweet):
-  tosign(sign, "center", '@'+tweet['user']['screen_name'].upper(), "scroll_always", tweet['text'])
-
-signfile = serial.Serial('/dev/ttyS0',baudrate=9600)
-#signfile = serial.Serial('/dev/ttyUSB0',baudrate=9600)
-  
-#tosign(30, "center", "hi", "center", "sign #30")
-#tosign(73,"center", "hi", "center", "sign #73")
-#tosign(5,"center", "hi", "center", "sign #5")
-
 
 usock = urllib2.urlopen("http://pledgie.com/campaigns/10602.json")
 data = usock.read()
@@ -91,13 +17,10 @@ pledges = pledgie['campaign']['pledges_count']
 percent = pledgie['campaign']['percent_towards_goal']
 pledge_guy = pledgie['campaign']['pledges'][-1]['display_name']
  
-#for pledge in pledgie['campaign']['pledges']:
-
-locale.setlocale( locale.LC_ALL, '' )
+locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' )
 parsedAmount = str(locale.currency(amount,grouping=True))[:-3]
 
-#oneline(73, "<FE>" + "Last Donation from:" + str(pledge_guy) )
-tosign(8, "", "<FD><L1>Last donation:", "", str(pledge_guy))
-oneline(6, "<FE>" + parsedAmount)
-tosign(73, "in_place_right", " %.1f%%" % percent + " of $35,000", "center", "THANK YOU!  If you can, please donate at hackerdojo.com to help us get heat & air conditioning!                " )
+sign.twoLines("96", "Last donation:", str(pledge_guy))
+sign.oneLine("97", parsedAmount)
+sign.twoLines("98", " %.1f%%" % percent + " of $35,000", "THANK YOU!  If you can, please donate at hackerdojo.com to help us get heat & air conditioning!")
 

@@ -21,6 +21,6 @@ for i in range(1,3):
       sign.twoLines(s['two_digit_id'], lines[0], lines[1])
     if len(lines)==1:
       sign.oneLine(s['two_digit_id'], lines[0])
-    print "Updated sign #" + s['two_digit_id']
+    # print "Updated sign #" + s['two_digit_id']
   time.sleep(15)
 
